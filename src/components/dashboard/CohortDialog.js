@@ -7,7 +7,8 @@ import { fetchIt } from "../utils/Fetch"
 import { CohortContext } from "../cohorts/CohortProvider"
 
 export const CohortDialog = ({ toggleCohorts }) => {
-    const { activeStudent, getStudent } = useContext(PeopleContext)
+    const { activeStudent, getStudent, activateStudent, getCohortStudents} = useContext(PeopleContext)
+    const { activeCohort } = useContext(CohortContext)
     const [message, setMessage] = useState("")
     const { getCohorts, cohorts } = useContext(CohortContext)
     const [cohortIds, setCohortIds] = useState([])
@@ -35,6 +36,22 @@ export const CohortDialog = ({ toggleCohorts }) => {
         })
     }
 
+
+
+    // create fucntion to perform PUT operation to /students/n/deactivate
+    const deactivateStudent = (cohort) => {
+        //how would you fetch this url?
+        return fetchIt(`${Settings.apiHost}/students/${activeStudent.id}/deactivate`, {
+            method: "PUT",
+        })
+        .then(() => {
+            activateStudent({})
+            getCohortStudents(activeCohort.id)
+        })
+    }
+
+
+
     const assignStudent = (cohort) => {
         return fetchIt(`${Settings.apiHost}/cohorts/${cohort.id}/assign`, {
             method: "POST",
@@ -55,6 +72,13 @@ export const CohortDialog = ({ toggleCohorts }) => {
                     checked={cohortIds.includes(cohort.id)} value={cohort.id} /> {cohort.name}
             </div>)
         }
+
+
+        {/* add a button labeled Deactivate to change the is_active bool to false */}
+        <button onClick={deactivateStudent}>
+            Deactivate
+        </button>
+
         <button className="fakeLink" style={{
             position: "absolute",
             top: "0.33em",
